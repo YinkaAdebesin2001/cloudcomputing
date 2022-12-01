@@ -1,0 +1,200 @@
+import fetch from 'node-fetch';
+
+const publicURL = "https://management.azure.com/subscriptions/9029c70e-4b27-42e6-8bfc-be0a25fe0898/resourceGroups/C20341821/providers/Microsoft.Network/publicIPAddresses/pip1?api-version=2022-05-01"
+
+const NIURL = "https://management.azure.com/subscriptions/9029c70e-4b27-42e6-8bfc-be0a25fe0898/resourceGroups/C20341821/providers/Microsoft.Network/networkInterfaces/ne?api-version=2022-05-01"
+
+const VMURL = "https://management.azure.com/subscriptions/9029c70e-4b27-42e6-8bfc-be0a25fe0898/resourceGroups/C20341821/providers/Microsoft.Compute/virtualMachines/vm?api-version=2022-08-01"
+
+const token = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuY29yZS53aW5kb3dzLm5ldC8iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83NjYzMTdjYi1lOTQ4LTRlNWYtOGNlYy1kYWJjOGUyZmQ1ZGEvIiwiaWF0IjoxNjY5OTExMjA2LCJuYmYiOjE2Njk5MTEyMDYsImV4cCI6MTY2OTkxNTc2NCwiYWNyIjoiMSIsImFpbyI6IkFWUUFxLzhUQUFBQU5uVEZjTlNPNUNCM0FYM1BuSktSY2JOYzVLK3ZFc2VhUmQ2MTcydmI2NThtZzVPa2NBUTRNSXJyMVZraHBiWGlCU1JKTVpEdG16blBVNWtxcDgyYkdZenVSYVRvYTdZRjlOSEYwN3kzeHRzPSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwaWQiOiIwNGIwNzc5NS04ZGRiLTQ2MWEtYmJlZS0wMmY5ZTFiZjdiNDYiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6IkFkZWJlc2luIiwiZ2l2ZW5fbmFtZSI6IllpbmthIiwiZ3JvdXBzIjpbIjk3YWY4MTJkLTk2ZTktNGYwMS04YTExLTc1ODAzMzc2MjE3YSIsIjg3ZjYwMDNkLTk0NzAtNDM4Zi1iZmVmLTgxM2IzN2ZjMmI2OCIsIjEyNWNhYjdjLWY5ZWItNDNlNS05ZTIxLTVlM2I1ZGRkMDViYSIsIjVhZDdkNmI0LWFkYWYtNGI5ZC05NTdmLTBmM2I2MTRiZWU2MCIsIjhhYzE1NGRkLWQ0NWYtNGM0Ni05NGU1LWJiNzhmZWZhM2FlZiIsIjhjODE4NmVhLTQyYTQtNDRhZi04YTc4LWFlOTE0MDExZTZiNCIsImQyYTZhOGVmLTRkMjYtNGQ5NS1iZDExLWFhMWVjNjE5ZjgxOCJdLCJpcGFkZHIiOiIyMC4yMjMuMTk1LjIxNyIsIm5hbWUiOiJDMjA0MjY4MTQgWWlua2EgQWRlYmVzaW4iLCJvaWQiOiI0Mjg2MGZmNy1lNjFiLTRkMDItOWY4My1iZTlmYzVmNjMxN2IiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMjAyNTQyOTI2NS0xOTU4MzY3NDc2LTcyNTM0NTU0My0zMjQ0MTUiLCJwdWlkIjoiMTAwMzIwMDBFNEFFMzUxQSIsInJoIjoiMC5BVEVBeXhkamRranBYMDZNN05xOGppX1Yya1pJZjNrQXV0ZFB1a1Bhd2ZqMk1CTXhBSlUuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic3ViIjoiZGlGRDBLSzUxazJVcnh4NG1XbW1kUUtjV1ZWWTA5UGkwalktcDRuX1l1RSIsInRpZCI6Ijc2NjMxN2NiLWU5NDgtNGU1Zi04Y2VjLWRhYmM4ZTJmZDVkYSIsInVuaXF1ZV9uYW1lIjoiQzIwNDI2ODE0QG15dHVkdWJsaW4uaWUiLCJ1cG4iOiJDMjA0MjY4MTRAbXl0dWR1Ymxpbi5pZSIsInV0aSI6InZNM2lKU1EwQmthcXVBd2Z5UTFRQVEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdLCJ4bXNfY2MiOlsiQ1AxIl0sInhtc190Y2R0IjoxNTI1MzM4OTQxfQ.MS7JfSPccBQSgR81t8PFRHOLYxeZM8tonrVqip3n5c8sWqetAJqPghQMQhyPwC0fdmJmZEz8YvDFL7KJIfGEs_mxoSOeUcA6V5QTPIPsjc2o0s0EGZLGwXvIhnj2UzKRd8oU-A5MqmfwWktzG9hXSyAhyU17v2vzSdbSCotXHk3HVy9zCMrbRvMWPJOk4Di3bgHNGwyuSsHdMiKie8N4si_2RcJXDuGiGl8sr6JnTRcvyIG1uUPdjijTZ4SDRtwc3SikfMeWJ7t2JV7-hZaSr-4k-9xLctw4JFJCnuo70fDjfAq-XgDFzZosrCJYflLnLP8IjqQksU-sIfeu1LeIS"
+
+async function createPublicIP (){
+    await fetch(publicURL, {
+        method: 'PUT',
+        headers:{
+            'Content-Type':'application/json',
+            'Authorization': token
+        },
+        body: JSON.stringify(
+            {
+                "name": "pip",
+                "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Network/publicIPAddresses/pip",
+                "etag": "W/\"238d6690-a2ea-4452-8cf2-29da84058f04\"",
+                "location": "uksouth",
+                "zones": [
+                    "1",
+                    "3",
+                    "2"
+                ],
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "resourceGuid": "d91b480e-5202-4015-b2b2-4f876165b186",
+                    "ipAddress": "20.77.190.33",
+                    "publicIPAddressVersion": "IPv4",
+                    "publicIPAllocationMethod": "Static",
+                    "idleTimeoutInMinutes": 4,
+                    "ipTags": []
+                },
+                "type": "Microsoft.Network/publicIPAddresses",
+                "sku": {
+                    "name": "Standard",
+                    "tier": "Regional"
+                }
+            }
+        )
+    }).then(res => res.json())
+    .then(res => console.log(res))
+}
+
+async function createNE (){
+    await fetch(NIURL, {
+        method: 'PUT',
+        headers:{
+            'Content-Type':'application/json',
+            'Authorization': token
+        },
+        body: JSON.stringify(
+            
+            {
+                "name": "ne",
+                "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Network/networkInterfaces/ne",
+                "etag": "W/\"e3aa2c06-b9f2-4c2b-b672-dd57ecc10141\"",
+                "tags": {},
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "resourceGuid": "87d68ae3-6f77-46e6-b160-319530a4e562",
+                    "ipConfigurations": [
+                        {
+                            "name": "Ipv4config",
+                            "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Network/networkInterfaces/ne/ipConfigurations/Ipv4config",
+                            "etag": "W/\"e3aa2c06-b9f2-4c2b-b672-dd57ecc10141\"",
+                            "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                            "properties": {
+                                "provisioningState": "Succeeded",
+                                "privateIPAddress": "10.0.0.5",
+                                "privateIPAllocationMethod": "Dynamic",
+                                "subnet": {
+                                    "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Network/virtualNetworks/C20426814_group-vnet/subnets/default"
+                                },
+                                "primary": true,
+                                "privateIPAddressVersion": "IPv4"
+                            }
+                        }
+                    ],
+                    "dnsSettings": {
+                        "dnsServers": [],
+                        "appliedDnsServers": [],
+                        "internalDomainNameSuffix": "eye3fo1rx4gubag1magcwgux0a.zx.internal.cloudapp.net"
+                    },
+                    "enableAcceleratedNetworking": false,
+                    "vnetEncryptionSupported": false,
+                    "enableIPForwarding": false,
+                    "disableTcpStateTracking": false,
+                    "hostedWorkloads": [],
+                    "tapConfigurations": [],
+                    "nicType": "Standard",
+                    "allowPort25Out": false
+                },
+                "type": "Microsoft.Network/networkInterfaces",
+                "location": "uksouth",
+                "kind": "Regular"
+            }
+
+            )
+        }).then(res => res.json())
+        .then(res => console.log(res))
+    }
+
+    async function createVM (){
+        await fetch(VMURL, {
+            method: 'PUT',
+            headers:{
+                'Content-Type':'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify(
+                {
+                    "name": "vm",
+                    "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Compute/virtualMachines/vm",
+                    "type": "Microsoft.Compute/virtualMachines",
+                    "location": "uksouth",
+                    "properties": {
+                        "vmId": "43c6c8b5-7fc8-4bf6-8a2c-e677d25122c8",
+                        "hardwareProfile": {
+                            "vmSize": "Standard_B2s"
+                        },
+                        "storageProfile": {
+                            "imageReference": {
+                                "publisher": "canonical",
+                                "offer": "0001-com-ubuntu-server-focal",
+                                "sku": "20_04-lts-gen2",
+                                "version": "latest",
+                                "exactVersion": "20.04.202211151"
+                            },
+                            "osDisk": {
+                                "osType": "Linux",
+                                "name": "vm_disk1_792699b811c145a68562b67273577ab6",
+                                "createOption": "FromImage",
+                                "caching": "ReadWrite",
+                                "managedDisk": {
+                                    "storageAccountType": "Premium_LRS",
+                                    "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Compute/disks/vm_disk1_792699b811c145a68562b67273577ab6"
+                                },
+                                "deleteOption": "Delete",
+                                "diskSizeGB": 30
+                            },
+                            "dataDisks": []
+                        },
+                        "osProfile": {
+                            "computerName": "vm",
+                            "adminUsername": "azureuser",
+                            "linuxConfiguration": {
+                                "disablePasswordAuthentication": true,
+                                "ssh": {
+                                    "publicKeys": [
+                                        {
+                                            "path": "/home/azureuser/.ssh/authorized_keys",
+                                            "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC49rdtASLJ5HFBxxuGEEeAeMAKF/zuPxtsc2yYo3cjdbtADrmOSFv1DuFpUmnsV7ZrHCE3uY8kl7bttVV8/XToWHtZW0XoS/Tn6cw8Vexh6rgoRN1gJ+w+RR+rTHyv0bUqhI0uj+CpNM1cw89byAr7qvBqZaDHUU+fX5AilSfULuG5ELyHoBlaBi0al9sIPfSYJ6sYDykDPQCsTOhIIsYesf0G4oz2Fyb/SPN4qTqDEC0FJAAVRbe+VeUF3ZkEICWnlVVv8gfaaYpqgpAW97jHiqJoOLfoLJUnARC7pC+/CTHIbN4UAj/YPLFfH+OyX3C8OCQytukt6DQgx9RMtBqIOto/Nczzda5jCucR4xyzTPCBaMqkhXgA2b3KvhI8f8EgsAbx5PO4LB4OpahAiIwx1jmNEcM+CepGjfoyP8FRf8jUckaPF6GsisPvoDgTk0Aq00s8fYz86AhUkJCCNDQr3SG0dbJdmA623hzUtjK2wiNNrDmOOzuvJBK8o4gaWQU= yinka@E5440"
+                                        }
+                                    ]
+                                },
+                                "provisionVMAgent": true,
+                                "patchSettings": {
+                                    "patchMode": "ImageDefault",
+                                    "assessmentMode": "ImageDefault"
+                                },
+                                "enableVMAgentPlatformUpdates": false
+                            },
+                            "secrets": [],
+                            "allowExtensionOperations": true,
+                            "requireGuestProvisionSignal": true
+                        },
+                        "networkProfile": {
+                            "networkInterfaces": [
+                                {
+                                    "id": "/subscriptions/69c7a84e-b8a2-4d3e-abc8-87e8631fe14b/resourceGroups/C20426814_group/providers/Microsoft.Network/networkInterfaces/vm652",
+                                    "properties": {
+                                        "deleteOption": "Detach"
+                                    }
+                                }
+                            ]
+                        },
+                        "diagnosticsProfile": {
+                            "bootDiagnostics": {
+                                "enabled": true
+                            }
+                        },
+                        "provisioningState": "Succeeded",
+                        "timeCreated": "2022-12-01T15:58:31.7736719+00:00"
+                    }
+                }
+                
+            )
+        }).then(res => res.json())
+        .then(res => console.log(res))
+    }
+
+
+createPublicIP();
+createNE();
+createVM();
